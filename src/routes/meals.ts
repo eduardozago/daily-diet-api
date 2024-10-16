@@ -1,13 +1,15 @@
 import { FastifyInstance } from 'fastify'
 import { knex } from '../database'
 import { z } from 'zod'
-import { error } from 'console'
+import { checkSessionIdExists } from '../middlewares/check-session-id-exists'
 
 export async function mealsRoutes(app: FastifyInstance) {
-  app.post('/', async (request, reply) => {
-    const { sessionId } = request.cookies
-
-    if (sessionId) {
+  app.post(
+    '/',
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request, reply) => {
       const createMealsBodySchema = z.object({
         name: z.string(),
         description: z.string(),
@@ -18,9 +20,7 @@ export async function mealsRoutes(app: FastifyInstance) {
         request.body,
       )
 
-      const [{ id: userId }] = await knex('users')
-        .select('id')
-        .where('session_id', sessionId)
+      const userId = request.body.userId
 
       if (userId) {
         await knex('meals').insert({
@@ -35,16 +35,20 @@ export async function mealsRoutes(app: FastifyInstance) {
       } else {
         return reply.status(400).send()
       }
-    } else {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-      })
-    }
-  })
+    },
+  )
 
-  app.get('/', async () => {
-    const meals = await knex('meals').select('*')
+  app.get(
+    '/',
+    {
+      preHandler: [checkSessionIdExists],
+    },
+    async (request) => {
+      const userId = request.body.userId
 
-    return meals
-  })
+      const meals = await knex('meals').select('*').where('user_id', userId)
+
+      return meals
+    },
+  )
 }
