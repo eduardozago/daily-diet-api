@@ -1,27 +1,45 @@
 import { FastifyInstance } from 'fastify'
 import { knex } from '../database'
 import { z } from 'zod'
+import { error } from 'console'
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.post('/', async (request, reply) => {
-    const createMealsBodySchema = z.object({
-      name: z.string(),
-      description: z.string(),
-      in_diet: z.boolean(),
-    })
+    const { sessionId } = request.cookies
 
-    const { name, description, in_diet } = createMealsBodySchema.parse(
-      request.body,
-    )
+    if (sessionId) {
+      const createMealsBodySchema = z.object({
+        name: z.string(),
+        description: z.string(),
+        in_diet: z.boolean(),
+      })
 
-    await knex('meals').insert({
-      id: crypto.randomUUID(),
-      name,
-      description,
-      in_diet,
-    })
+      const { name, description, in_diet } = createMealsBodySchema.parse(
+        request.body,
+      )
 
-    return reply.status(201).send()
+      const [{ id: userId }] = await knex('users')
+        .select('id')
+        .where('session_id', sessionId)
+
+      if (userId) {
+        await knex('meals').insert({
+          id: crypto.randomUUID(),
+          user_id: userId,
+          name,
+          description,
+          in_diet,
+        })
+
+        return reply.status(201).send()
+      } else {
+        return reply.status(400).send()
+      }
+    } else {
+      return reply.status(401).send({
+        error: 'Unauthorized',
+      })
+    }
   })
 
   app.get('/', async () => {
