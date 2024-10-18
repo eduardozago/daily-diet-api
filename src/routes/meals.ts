@@ -115,4 +115,42 @@ export async function mealsRoutes(app: FastifyInstance) {
       }
     },
   )
+
+  app.get(
+    '/:id',
+    { preHandler: [checkSessionIdExists] },
+    async (request, reply) => {
+      const getMealsParamsSchema = z.object({
+        id: z.string().uuid(),
+      })
+
+      const { id } = getMealsParamsSchema.parse(request.params)
+
+      const { userId } = request.body
+
+      const meals = await knex('meals').where('user_id', userId).select()
+
+      if (meals.length > 0) {
+        const meal = await knex('meals').where('id', id).first()
+
+        return { meal }
+      } else {
+        return reply.status(400).send()
+      }
+    },
+  )
+
+  app.get(
+    '/total',
+    { preHandler: [checkSessionIdExists] },
+    async (request, reply) => {
+      const { userId } = request.body
+
+      const meals = await knex('meals').where('user_id', userId).select('*')
+
+      const total = meals.length
+
+      return { total }
+    },
+  )
 }
