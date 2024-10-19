@@ -140,17 +140,77 @@ export async function mealsRoutes(app: FastifyInstance) {
     },
   )
 
+  app.get('/total', { preHandler: [checkSessionIdExists] }, async (request) => {
+    const { userId } = request.body
+
+    const meals = await knex('meals').where('user_id', userId).select('*')
+
+    const total = meals.length
+
+    return { total }
+  })
+
   app.get(
-    '/total',
+    '/in_diet',
     { preHandler: [checkSessionIdExists] },
-    async (request, reply) => {
+    async (request) => {
       const { userId } = request.body
 
-      const meals = await knex('meals').where('user_id', userId).select('*')
+      const meals = await knex('meals')
+        .where('user_id', userId)
+        .andWhere('in_diet', true)
+        .select('*')
 
-      const total = meals.length
+      return { meals }
+    },
+  )
 
-      return { total }
+  app.get(
+    '/out_diet',
+    { preHandler: [checkSessionIdExists] },
+    async (request) => {
+      const { userId } = request.body
+
+      const meals = await knex('meals')
+        .where('user_id', userId)
+        .andWhere('in_diet', false)
+        .select('*')
+
+      return { meals }
+    },
+  )
+
+  app.get(
+    '/better_sequence',
+    { preHandler: [checkSessionIdExists] },
+    async (request) => {
+      const { userId } = request.body
+
+      const meals = await knex('meals')
+        .where('user_id', userId)
+        .orderBy('created_at')
+        .select('*')
+
+      let longestSequence = 0
+      let currentSequence = 0
+
+      let betterSequence = []
+
+      for (const meal of meals) {
+        if (meal.in_diet) {
+          currentSequence += 1
+          betterSequence.push(meal)
+        } else {
+          if (currentSequence > longestSequence) {
+            longestSequence = currentSequence
+          } else {
+            betterSequence = []
+          }
+          currentSequence = 0
+        }
+      }
+
+      return { betterSequence }
     },
   )
 }

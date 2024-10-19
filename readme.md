@@ -89,27 +89,20 @@ Routes are managed by a [Fastify](https://fastify.dev/) plugin that implements f
         ```
 
 - **GET** - `/meals`: List all meals from user.
-    - Data is received in JSON format.
+
+- **GET** - `/meals/:id`: Get a specific meal from user.
+
+- **GET** - `/meals/total`: Get a total amount of meals from user.
+
+- **GET** - `/meals/in_diet`: Get a list of `in_diet` meals.
+
+- **GET** - `/meals/out_diet`: Get a list of `out_diet` meals.
+
+- **GET** - `/meals/best_sequence`: Get the best sequence of `in_diet` meals.
+
 - **PUT** - `/meals/:id`: Update a meal from the user.
-    - Data is received in JSON format.
+
 - **DELETE** - `/meals/:id`: Delete a meal from the user.
-    - Data is received in JSON format.
-
-
-- **PUT** - `/meals/:id`: Get a specific transaction from the user.
-    - Data is received in JSON format.
-    - Only user transactions.
-- **GET** - `/transactions/summary`: Get user balance account
-    - Data is received in JSON format.
-    - Example:
-        ```
-        {
-            "summary": {
-                "amount": 6836
-            }
-        }
-        ```
-
 
 ## Database
 
