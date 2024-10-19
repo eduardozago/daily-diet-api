@@ -29,10 +29,17 @@ For this project, the following (essential for execution) resources were used:
 - **Record a meal**: User can record a meal using the following fields:
     - Name
     - Description
-    - In or out diet
+    - In or out of diet
 - **Update meal**: User may update your meals.
 - **Delete meal**: User may delete your meals.
 - **List all meals**: User may list all of your meals.
+- **Get a specific meal**: User may get a specific meal.
+- **Get user metrics**: 
+    - Amount of meals
+    - Amount of meals in the diet
+    - Amount of meals out the diet
+    - The best meal sequence in the diet
+    
 
 ### Usage
 
@@ -92,11 +99,11 @@ Routes are managed by a [Fastify](https://fastify.dev/) plugin that implements f
 
 - **GET** - `/meals/:id`: Get a specific meal from user.
 
-- **GET** - `/meals/total`: Get a total amount of meals from user.
+- **GET** - `/meals/total`: Get meals amount from user.
 
-- **GET** - `/meals/in_diet`: Get a list of `in_diet` meals.
+- **GET** - `/meals/in_diet`: Get `in_diet` meals amount.
 
-- **GET** - `/meals/out_diet`: Get a list of `out_diet` meals.
+- **GET** - `/meals/out_diet`: Get `out_diet` meals amount.
 
 - **GET** - `/meals/best_sequence`: Get the best sequence of `in_diet` meals.
 

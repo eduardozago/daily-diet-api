@@ -143,11 +143,12 @@ export async function mealsRoutes(app: FastifyInstance) {
   app.get('/total', { preHandler: [checkSessionIdExists] }, async (request) => {
     const { userId } = request.body
 
-    const meals = await knex('meals').where('user_id', userId).select('*')
+    const amount = await knex('meals')
+      .count('* as amount_meals')
+      .where('user_id', userId)
+      .first()
 
-    const total = meals.length
-
-    return { total }
+    return { amount }
   })
 
   app.get(
@@ -156,12 +157,13 @@ export async function mealsRoutes(app: FastifyInstance) {
     async (request) => {
       const { userId } = request.body
 
-      const meals = await knex('meals')
+      const amount = await knex('meals')
+        .count('* as amount_in_diet')
         .where('user_id', userId)
         .andWhere('in_diet', true)
-        .select('*')
+        .first()
 
-      return { meals }
+      return { amount }
     },
   )
 
@@ -171,12 +173,13 @@ export async function mealsRoutes(app: FastifyInstance) {
     async (request) => {
       const { userId } = request.body
 
-      const meals = await knex('meals')
+      const amount = await knex('meals')
+        .count('* as amount_out_diet')
         .where('user_id', userId)
         .andWhere('in_diet', false)
-        .select('*')
+        .first()
 
-      return { meals }
+      return { amount }
     },
   )
 
